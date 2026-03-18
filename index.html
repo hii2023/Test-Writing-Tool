@@ -2,24 +2,24 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>NOSH7 Lead Maturity Engine</title>
+<title>NOSH7 Lead Engine V6</title>
 
 <style>
 body {
   font-family: Arial;
-  background: linear-gradient(135deg,#e0f7fa,#fce4ec);
-  padding:20px;
-  max-width:900px;
+  background: linear-gradient(135deg,#e3f2fd,#f1f8e9);
+  max-width:1000px;
   margin:auto;
+  padding:20px;
 }
-h1 { color:#2c7a7b; }
+h1 { color:#1b5e20; }
 
 .card {
   background:white;
   padding:15px;
-  border-radius:12px;
   margin-top:15px;
-  box-shadow:0 4px 10px rgba(0,0,0,0.1);
+  border-radius:10px;
+  box-shadow:0 3px 8px rgba(0,0,0,0.1);
 }
 
 select,input,textarea,button {
@@ -31,14 +31,14 @@ select,input,textarea,button {
 }
 
 button {
-  background:#2c7a7b;
+  background:#1b5e20;
   color:white;
   font-weight:bold;
   cursor:pointer;
 }
 
 .output {
-  background:#f1f8e9;
+  background:#f9fbe7;
   padding:10px;
   border-radius:8px;
   margin-top:10px;
@@ -49,14 +49,22 @@ button {
 
 <body>
 
-<h1>🔥 NOSH7 Lead Maturity Engine</h1>
+<h1>NOSH7 Lead Maturity Engine V6</h1>
 
 <div class="card">
 
-<label>Lead Name</label>
-<input id="name" placeholder="Enter name">
+<input id="name" placeholder="Lead Name">
 
-<label>Lead Stage</label>
+<select id="category">
+<option value="gym">Gym</option>
+<option value="yoga">Yoga Classes</option>
+<option value="diet">Dietitian / Nutritionist</option>
+<option value="pt">Gym Personal Trainer</option>
+<option value="lab">Laboratory</option>
+<option value="weight">Weight Loss Services</option>
+<option value="corporate">Corporate / Gift Supplier</option>
+</select>
+
 <select id="stage">
 <option value="new">New Lead</option>
 <option value="contacted">Contacted</option>
@@ -66,28 +74,33 @@ button {
 <option value="ready">Ready to Close</option>
 </select>
 
-<button onclick="generate()">Generate Strategy</button>
+<select id="mode">
+<option value="whatsapp">WhatsApp</option>
+<option value="email">Email</option>
+</select>
+
+<button onclick="generate()">Generate</button>
 
 </div>
 
 <div class="card">
-<h3>💬 What to Say</h3>
-<div id="script" class="output"></div>
+<h3>Subject (Email Only)</h3>
+<div id="subject" class="output"></div>
 </div>
 
 <div class="card">
-<h3>🧠 What’s Happening</h3>
+<h3>Message Option 1</h3>
+<div id="script1" class="output"></div>
+</div>
+
+<div class="card">
+<h3>Message Option 2</h3>
+<div id="script2" class="output"></div>
+</div>
+
+<div class="card">
+<h3>Strategy Insight</h3>
 <div id="insight" class="output"></div>
-</div>
-
-<div class="card">
-<h3>📊 What You Should Do Next</h3>
-<div id="action" class="output"></div>
-</div>
-
-<div class="card">
-<h3>⚡ Pro Tip</h3>
-<div id="tip" class="output"></div>
 </div>
 
 <script>
@@ -96,105 +109,149 @@ function generate(){
 
 let name = document.getElementById("name").value || "";
 let stage = document.getElementById("stage").value;
+let category = document.getElementById("category").value;
+let mode = document.getElementById("mode").value;
+
+let base = {
+
+gym: "help your members stay consistent with diet and improve visible results",
+yoga: "support your members with structured nutrition aligned to wellness goals",
+diet: "ensure your clients actually follow prescribed diet plans",
+pt: "help your clients get faster transformation results",
+lab: "extend your diagnostic insights into actionable nutrition solutions",
+weight: "improve client outcomes through structured daily nutrition",
+corporate: "offer healthy meal solutions as part of employee wellness programs"
+
+};
+
+let subject = "Partnership to improve client outcomes through nutrition execution";
 
 let data = {
 
 new: {
-script: `Hi ${name} 👋
+s1: `Hi ${name},
 
-We help clients follow diet with ready healthy meals (NOSH7).
+We work with partners to ${base[category]}.
 
-You can also earn per referral.
+We provide ready-to-eat structured meals so clients follow plans without drop-offs.
 
-Quick connect?`,
+Would it make sense to explore a small pilot?`,
 
-insight: "Lead doesn't know you. Keep it short. No overload.",
+s2: `Hi ${name},
 
-action: "Send message → Wait 24 hrs → Follow-up if no reply.",
+One gap we see across ${category} businesses is diet compliance.
 
-tip: "First message = curiosity, not full pitch."
+We solve this by delivering ready meals aligned to goals.
+
+Can we connect briefly to explore fit?`,
+
+insight: "Keep it short. Focus on problem recognition."
 },
 
 contacted: {
-script: `Hi ${name}, just checking 🙂
+s1: `Hi ${name},
 
-Most partners we work with faced one issue — clients not following diet.
+Following up on this.
 
-We solved that with ready meals.
+Most partners we work with saw improved results once meals were handled externally.
 
-Can we try with 1–2 clients?`,
+We can start with a small set of clients.`,
 
-insight: "Lead has seen you but not convinced.",
+s2: `Hi ${name},
 
-action: "Push for small trial, not full commitment.",
+Sharing a quick thought.
 
-tip: "Reduce risk → Increase conversion."
+Instead of relying on clients to prepare meals, we manage execution.
+
+This improves retention and outcomes.`,
+
+insight: "Reinforce value. Push small start."
 },
 
 interested: {
-script: `Great ${name} 🙌
+s1: `Hi ${name},
 
-Let’s start with 2 clients.
+Let us begin with 2 clients.
 
-We’ll handle everything — meals + delivery.
+We will handle meals, delivery and consistency.
 
-You just guide them.`,
+You focus on guidance.`,
 
-insight: "Lead wants this but needs push.",
+s2: `Hi ${name},
 
-action: "Close fast. Don’t delay.",
+We can start with a controlled pilot.
 
-tip: "Momentum = conversion."
+This will help validate results before scaling.`,
+
+insight: "Move fast to pilot."
 },
 
 confused: {
-script: `Totally understand ${name} 🙂
+s1: `Hi ${name},
 
-Let’s keep it simple.
+We can simplify this.
 
-We can start with just 1 client — no pressure.
+Start with one client. No complexity.
 
-You’ll see results first.`,
+You will see results directly.`,
 
-insight: "Fear of risk or complexity.",
+s2: `Hi ${name},
 
-action: "Simplify + reduce decision load.",
+No need to change your process.
 
-tip: "Confusion kills sales. Simplicity converts."
+We just support meal execution.`,
+
+insight: "Remove friction and complexity."
 },
 
 notresponding: {
-script: `Hi ${name}, just closing loop 🙂
+s1: `Hi ${name},
 
-Should I keep this on hold for now?`,
+Checking if this is relevant for you currently.
 
-insight: "Lead is ignoring. Needs trigger.",
+If not, I can reconnect later.`,
 
-action: "Use reverse psychology.",
+s2: `Hi ${name},
 
-tip: "Scarcity + exit message = response trigger."
+Closing this for now.
+
+Let me know if you want to revisit.`,
+
+insight: "Trigger response using exit intent."
 },
 
 ready: {
-script: `Perfect ${name} 🙌
+s1: `Hi ${name},
 
-Let’s start today.
+We can begin immediately.
 
-Share 1–2 client details and we’ll begin immediately.`,
+Please share initial client details.`,
 
-insight: "Lead is ready but waiting.",
+s2: `Hi ${name},
 
-action: "Push immediate action.",
+Let us activate this today.
 
-tip: "Delay = drop. Close NOW."
+We will onboard and start delivery.`,
+
+insight: "Close without delay."
 }
 
 };
 
-document.getElementById("script").innerText = data[stage].script;
+let msg1 = data[stage].s1;
+let msg2 = data[stage].s2;
+
+if(mode === "email"){
+  msg1 = "Dear " + name + ",\n\n" + msg1 + "\n\nRegards\nNOSH7";
+  msg2 = "Dear " + name + ",\n\n" + msg2 + "\n\nRegards\nNOSH7";
+  document.getElementById("subject").innerText = subject;
+} else {
+  document.getElementById("subject").innerText = "Not applicable for WhatsApp";
+}
+
+document.getElementById("script1").innerText = msg1;
+document.getElementById("script2").innerText = msg2;
 document.getElementById("insight").innerText = data[stage].insight;
-document.getElementById("action").innerText = data[stage].action;
-document.getElementById("tip").innerText = data[stage].tip;
 
 }
 
