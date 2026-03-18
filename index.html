@@ -2,12 +2,12 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>NOSH7 Lead Engine V7</title>
+<title>NOSH7 Trigger Engine V8</title>
 
 <style>
 body {
   font-family: Arial;
-  background: linear-gradient(135deg,#fff3e0,#e8f5e9);
+  background: linear-gradient(135deg,#e3f2fd,#fce4ec);
   max-width:1100px;
   margin:auto;
   padding:20px;
@@ -37,12 +37,16 @@ button {
   font-weight:bold;
   cursor:pointer;
 }
+.copyBtn {
+  margin-top:5px;
+  background:#1565c0;
+}
 </style>
 </head>
 
 <body>
 
-<h2>NOSH7 Lead Conversion Engine</h2>
+<h2>NOSH7 Trigger-Based Lead Engine</h2>
 
 <div class="card">
 
@@ -55,12 +59,11 @@ button {
 <option value="Trainer">Personal Trainer</option>
 <option value="Lab">Laboratory</option>
 <option value="WeightLoss">Weight Loss Services</option>
-<option value="Corporate">Corporate / Gifting</option>
+<option value="Corporate">Corporate</option>
 </select>
 
 <select id="stage">
 <option value="New">New Lead</option>
-<option value="Contacted">Contacted</option>
 <option value="Interested">Interested</option>
 <option value="Confused">Confused</option>
 <option value="NoResponse">Not Responding</option>
@@ -72,86 +75,90 @@ button {
 <option value="Email">Email</option>
 </select>
 
-<button onclick="generate()">Generate</button>
-<button onclick="downloadExcel()">Download All Messages (Excel)</button>
+<button onclick="generate()">Generate Message</button>
 
 </div>
 
 <div class="card">
 <h3>Subject</h3>
 <div id="subject" class="output"></div>
+<button class="copyBtn" onclick="copy('subject')">Copy Subject</button>
 </div>
 
 <div class="card">
 <h3>Message Option 1</h3>
 <div id="msg1" class="output"></div>
+<button class="copyBtn" onclick="copy('msg1')">Copy Message 1</button>
 </div>
 
 <div class="card">
 <h3>Message Option 2</h3>
 <div id="msg2" class="output"></div>
+<button class="copyBtn" onclick="copy('msg2')">Copy Message 2</button>
 </div>
 
 <div class="card">
-<h3>What to Do Next</h3>
-<div id="next" class="output"></div>
+<h3>Trigger Insight</h3>
+<div id="insight" class="output"></div>
 </div>
 
 <script>
 
-const messages = {
+const triggers = {
+Gym: "Focus on member results and retention",
+Yoga: "Focus on discipline and lifestyle alignment",
+Dietitian: "Focus on diet compliance and outcomes",
+Trainer: "Focus on faster transformation results",
+Lab: "Focus on converting reports into action",
+WeightLoss: "Focus on retention and visible results",
+Corporate: "Focus on employee wellness execution"
+};
+
+const data = {
 
 Gym: {
 New: [
-"Hi {name}, we help gym members stay consistent with diet through ready meals. This improves visible results. Can we explore a small pilot?",
-"Hi {name}, many gyms struggle with members not following diet. We solve this with ready-to-eat structured meals. Open to a quick discussion?"
-],
-Contacted: [
-"Following up. Gyms we work with saw better transformation results once meals were managed. We can start with a few members.",
-"Quick follow-up. Instead of relying on members to prepare meals, we handle execution. This improves retention."
+"Hi {name}, most members train consistently but don’t see results due to diet gaps. We help gyms solve this by managing daily meals. Open to exploring a small pilot?",
+"Hi {name}, a common drop-off reason in gyms is lack of visible progress. We handle diet execution so members actually see results. Worth a quick discussion?"
 ],
 Interested: [
-"Let us start with 2 members. We will handle meals and delivery. You focus on training.",
-"We can begin with a small pilot to validate results before scaling."
+"Let’s test this with 2–3 members who are not seeing expected results. You should notice improved consistency quickly.",
+"We can start with members close to dropping off and improve their outcomes. This usually increases retention."
 ],
 Confused: [
-"We can simplify this. Start with one member. No process change required.",
-"No complexity. We just support meal execution for your members."
+"No changes needed in your setup. We only handle the meal side for your members.",
+"Think of this as support for results, not an additional process."
 ],
 NoResponse: [
-"Checking if this is relevant currently. If not, I can reconnect later.",
-"Closing this for now. Let me know if you want to revisit."
+"Checking if improving member results through diet support is relevant right now.",
+"Closing this for now. Happy to reconnect if needed later."
 ],
 Ready: [
-"Let us begin. Share initial member details and we will activate.",
-"We can onboard immediately and start delivery."
+"Let’s begin with a few members. Share details and we will activate.",
+"We can onboard immediately and start supporting your members."
 ]
 },
 
 Dietitian: {
 New: [
-"Hi {name}, we help ensure your clients follow diet plans through ready meals. This improves outcomes. Can we explore?",
-"Hi {name}, diet compliance is a major gap. We solve it by delivering structured meals. Open to discussion?"
-],
-Contacted: [
-"Following up. Dietitians we work with saw better adherence once meals were handled.",
-"We support execution so your plans translate into results."
+"Hi {name}, most clients struggle to follow diet plans consistently. We help ensure execution through ready meals aligned to your guidance.",
+"Hi {name}, the gap is rarely planning, it’s compliance. We help convert your plans into daily action through meals."
 ],
 Interested: [
-"Let us begin with 2 clients. We manage meals and delivery.",
-"Start with a small pilot to validate results."
+"Let’s start with 2 clients who struggle with adherence. You will see improved consistency.",
+"We can align meals with your plans for a small set of clients and track results."
 ],
 Confused: [
-"Start with one client. No complexity involved.",
-"We integrate without changing your process."
+"This doesn’t change your process. We only support execution.",
+"We work behind your plan, not instead of it."
 ],
 NoResponse: [
-"Checking relevance. Should I reconnect later?",
-"Closing for now. Let me know if needed."
+"Checking if this is relevant for your clients currently.",
+"Closing this for now. Let me know if needed later."
 ],
 Ready: [
-"Please share initial clients. We will begin immediately.",
-"We can activate today."
+"Please share initial clients and we will begin.",
+"We can activate immediately and align with your plans."
 ]
 }
 
@@ -164,13 +171,13 @@ let cat = document.getElementById("category").value;
 let stage = document.getElementById("stage").value;
 let mode = document.getElementById("mode").value;
 
-let msgArr = messages[cat][stage];
+let msgArr = data[cat][stage];
 
 let m1 = msgArr[0].replace("{name}",name);
 let m2 = msgArr[1].replace("{name}",name);
 
 if(mode === "Email"){
-document.getElementById("subject").innerText = "Improving client outcomes through structured nutrition";
+document.getElementById("subject").innerText = "Improving outcomes through structured nutrition execution";
 m1 = "Dear "+name+",\n\n"+m1+"\n\nRegards\nNOSH7";
 m2 = "Dear "+name+",\n\n"+m2+"\n\nRegards\nNOSH7";
 }else{
@@ -180,33 +187,14 @@ document.getElementById("subject").innerText = "Not applicable";
 document.getElementById("msg1").innerText = m1;
 document.getElementById("msg2").innerText = m2;
 
-document.getElementById("next").innerText =
-stage==="New"?"Send and wait 24 hours":
-stage==="Contacted"?"Push for small pilot":
-stage==="Interested"?"Close quickly":
-stage==="Confused"?"Reduce complexity":
-stage==="NoResponse"?"Trigger response":
-"Close immediately";
+document.getElementById("insight").innerText = triggers[cat];
 
 }
 
-function downloadExcel(){
-
-let rows = [["Category","Stage","Message1","Message2"]];
-
-for(let cat in messages){
- for(let st in messages[cat]){
-  rows.push([cat,st,messages[cat][st][0],messages[cat][st][1]]);
- }
-}
-
-let csv = rows.map(e=>e.join(",")).join("\n");
-
-let blob = new Blob([csv]);
-let a = document.createElement("a");
-a.href = URL.createObjectURL(blob);
-a.download = "messages.csv";
-a.click();
+function copy(id){
+let text = document.getElementById(id).innerText;
+navigator.clipboard.writeText(text);
+alert("Copied");
 }
 
 </script>
