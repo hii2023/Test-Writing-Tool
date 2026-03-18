@@ -2,257 +2,211 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>NOSH7 Lead Engine V6</title>
+<title>NOSH7 Lead Engine V7</title>
 
 <style>
 body {
   font-family: Arial;
-  background: linear-gradient(135deg,#e3f2fd,#f1f8e9);
-  max-width:1000px;
+  background: linear-gradient(135deg,#fff3e0,#e8f5e9);
+  max-width:1100px;
   margin:auto;
   padding:20px;
 }
-h1 { color:#1b5e20; }
-
 .card {
   background:white;
   padding:15px;
   margin-top:15px;
   border-radius:10px;
-  box-shadow:0 3px 8px rgba(0,0,0,0.1);
+  box-shadow:0 3px 10px rgba(0,0,0,0.1);
 }
-
-select,input,textarea,button {
+select,input,button {
   width:100%;
   padding:10px;
   margin-top:10px;
-  border-radius:6px;
-  border:1px solid #ccc;
 }
-
+.output {
+  background:#f1f8e9;
+  padding:10px;
+  margin-top:10px;
+  border-radius:6px;
+  white-space:pre-line;
+}
 button {
-  background:#1b5e20;
+  background:#2e7d32;
   color:white;
   font-weight:bold;
   cursor:pointer;
-}
-
-.output {
-  background:#f9fbe7;
-  padding:10px;
-  border-radius:8px;
-  margin-top:10px;
-  white-space:pre-line;
 }
 </style>
 </head>
 
 <body>
 
-<h1>NOSH7 Lead Maturity Engine V6</h1>
+<h2>NOSH7 Lead Conversion Engine</h2>
 
 <div class="card">
 
 <input id="name" placeholder="Lead Name">
 
 <select id="category">
-<option value="gym">Gym</option>
-<option value="yoga">Yoga Classes</option>
-<option value="diet">Dietitian / Nutritionist</option>
-<option value="pt">Gym Personal Trainer</option>
-<option value="lab">Laboratory</option>
-<option value="weight">Weight Loss Services</option>
-<option value="corporate">Corporate / Gift Supplier</option>
+<option value="Gym">Gym</option>
+<option value="Yoga">Yoga Classes</option>
+<option value="Dietitian">Dietitian / Nutritionist</option>
+<option value="Trainer">Personal Trainer</option>
+<option value="Lab">Laboratory</option>
+<option value="WeightLoss">Weight Loss Services</option>
+<option value="Corporate">Corporate / Gifting</option>
 </select>
 
 <select id="stage">
-<option value="new">New Lead</option>
-<option value="contacted">Contacted</option>
-<option value="interested">Interested</option>
-<option value="confused">Confused</option>
-<option value="notresponding">Not Responding</option>
-<option value="ready">Ready to Close</option>
+<option value="New">New Lead</option>
+<option value="Contacted">Contacted</option>
+<option value="Interested">Interested</option>
+<option value="Confused">Confused</option>
+<option value="NoResponse">Not Responding</option>
+<option value="Ready">Ready to Close</option>
 </select>
 
 <select id="mode">
-<option value="whatsapp">WhatsApp</option>
-<option value="email">Email</option>
+<option value="WhatsApp">WhatsApp</option>
+<option value="Email">Email</option>
 </select>
 
 <button onclick="generate()">Generate</button>
+<button onclick="downloadExcel()">Download All Messages (Excel)</button>
 
 </div>
 
 <div class="card">
-<h3>Subject (Email Only)</h3>
+<h3>Subject</h3>
 <div id="subject" class="output"></div>
 </div>
 
 <div class="card">
 <h3>Message Option 1</h3>
-<div id="script1" class="output"></div>
+<div id="msg1" class="output"></div>
 </div>
 
 <div class="card">
 <h3>Message Option 2</h3>
-<div id="script2" class="output"></div>
+<div id="msg2" class="output"></div>
 </div>
 
 <div class="card">
-<h3>Strategy Insight</h3>
-<div id="insight" class="output"></div>
+<h3>What to Do Next</h3>
+<div id="next" class="output"></div>
 </div>
 
 <script>
 
+const messages = {
+
+Gym: {
+New: [
+"Hi {name}, we help gym members stay consistent with diet through ready meals. This improves visible results. Can we explore a small pilot?",
+"Hi {name}, many gyms struggle with members not following diet. We solve this with ready-to-eat structured meals. Open to a quick discussion?"
+],
+Contacted: [
+"Following up. Gyms we work with saw better transformation results once meals were managed. We can start with a few members.",
+"Quick follow-up. Instead of relying on members to prepare meals, we handle execution. This improves retention."
+],
+Interested: [
+"Let us start with 2 members. We will handle meals and delivery. You focus on training.",
+"We can begin with a small pilot to validate results before scaling."
+],
+Confused: [
+"We can simplify this. Start with one member. No process change required.",
+"No complexity. We just support meal execution for your members."
+],
+NoResponse: [
+"Checking if this is relevant currently. If not, I can reconnect later.",
+"Closing this for now. Let me know if you want to revisit."
+],
+Ready: [
+"Let us begin. Share initial member details and we will activate.",
+"We can onboard immediately and start delivery."
+]
+},
+
+Dietitian: {
+New: [
+"Hi {name}, we help ensure your clients follow diet plans through ready meals. This improves outcomes. Can we explore?",
+"Hi {name}, diet compliance is a major gap. We solve it by delivering structured meals. Open to discussion?"
+],
+Contacted: [
+"Following up. Dietitians we work with saw better adherence once meals were handled.",
+"We support execution so your plans translate into results."
+],
+Interested: [
+"Let us begin with 2 clients. We manage meals and delivery.",
+"Start with a small pilot to validate results."
+],
+Confused: [
+"Start with one client. No complexity involved.",
+"We integrate without changing your process."
+],
+NoResponse: [
+"Checking relevance. Should I reconnect later?",
+"Closing for now. Let me know if needed."
+],
+Ready: [
+"Please share initial clients. We will begin immediately.",
+"We can activate today."
+]
+}
+
+};
+
 function generate(){
 
 let name = document.getElementById("name").value || "";
+let cat = document.getElementById("category").value;
 let stage = document.getElementById("stage").value;
-let category = document.getElementById("category").value;
 let mode = document.getElementById("mode").value;
 
-let base = {
+let msgArr = messages[cat][stage];
 
-gym: "help your members stay consistent with diet and improve visible results",
-yoga: "support your members with structured nutrition aligned to wellness goals",
-diet: "ensure your clients actually follow prescribed diet plans",
-pt: "help your clients get faster transformation results",
-lab: "extend your diagnostic insights into actionable nutrition solutions",
-weight: "improve client outcomes through structured daily nutrition",
-corporate: "offer healthy meal solutions as part of employee wellness programs"
+let m1 = msgArr[0].replace("{name}",name);
+let m2 = msgArr[1].replace("{name}",name);
 
-};
-
-let subject = "Partnership to improve client outcomes through nutrition execution";
-
-let data = {
-
-new: {
-s1: `Hi ${name},
-
-We work with partners to ${base[category]}.
-
-We provide ready-to-eat structured meals so clients follow plans without drop-offs.
-
-Would it make sense to explore a small pilot?`,
-
-s2: `Hi ${name},
-
-One gap we see across ${category} businesses is diet compliance.
-
-We solve this by delivering ready meals aligned to goals.
-
-Can we connect briefly to explore fit?`,
-
-insight: "Keep it short. Focus on problem recognition."
-},
-
-contacted: {
-s1: `Hi ${name},
-
-Following up on this.
-
-Most partners we work with saw improved results once meals were handled externally.
-
-We can start with a small set of clients.`,
-
-s2: `Hi ${name},
-
-Sharing a quick thought.
-
-Instead of relying on clients to prepare meals, we manage execution.
-
-This improves retention and outcomes.`,
-
-insight: "Reinforce value. Push small start."
-},
-
-interested: {
-s1: `Hi ${name},
-
-Let us begin with 2 clients.
-
-We will handle meals, delivery and consistency.
-
-You focus on guidance.`,
-
-s2: `Hi ${name},
-
-We can start with a controlled pilot.
-
-This will help validate results before scaling.`,
-
-insight: "Move fast to pilot."
-},
-
-confused: {
-s1: `Hi ${name},
-
-We can simplify this.
-
-Start with one client. No complexity.
-
-You will see results directly.`,
-
-s2: `Hi ${name},
-
-No need to change your process.
-
-We just support meal execution.`,
-
-insight: "Remove friction and complexity."
-},
-
-notresponding: {
-s1: `Hi ${name},
-
-Checking if this is relevant for you currently.
-
-If not, I can reconnect later.`,
-
-s2: `Hi ${name},
-
-Closing this for now.
-
-Let me know if you want to revisit.`,
-
-insight: "Trigger response using exit intent."
-},
-
-ready: {
-s1: `Hi ${name},
-
-We can begin immediately.
-
-Please share initial client details.`,
-
-s2: `Hi ${name},
-
-Let us activate this today.
-
-We will onboard and start delivery.`,
-
-insight: "Close without delay."
+if(mode === "Email"){
+document.getElementById("subject").innerText = "Improving client outcomes through structured nutrition";
+m1 = "Dear "+name+",\n\n"+m1+"\n\nRegards\nNOSH7";
+m2 = "Dear "+name+",\n\n"+m2+"\n\nRegards\nNOSH7";
+}else{
+document.getElementById("subject").innerText = "Not applicable";
 }
 
-};
+document.getElementById("msg1").innerText = m1;
+document.getElementById("msg2").innerText = m2;
 
-let msg1 = data[stage].s1;
-let msg2 = data[stage].s2;
+document.getElementById("next").innerText =
+stage==="New"?"Send and wait 24 hours":
+stage==="Contacted"?"Push for small pilot":
+stage==="Interested"?"Close quickly":
+stage==="Confused"?"Reduce complexity":
+stage==="NoResponse"?"Trigger response":
+"Close immediately";
 
-if(mode === "email"){
-  msg1 = "Dear " + name + ",\n\n" + msg1 + "\n\nRegards\nNOSH7";
-  msg2 = "Dear " + name + ",\n\n" + msg2 + "\n\nRegards\nNOSH7";
-  document.getElementById("subject").innerText = subject;
-} else {
-  document.getElementById("subject").innerText = "Not applicable for WhatsApp";
 }
 
-document.getElementById("script1").innerText = msg1;
-document.getElementById("script2").innerText = msg2;
-document.getElementById("insight").innerText = data[stage].insight;
+function downloadExcel(){
 
+let rows = [["Category","Stage","Message1","Message2"]];
+
+for(let cat in messages){
+ for(let st in messages[cat]){
+  rows.push([cat,st,messages[cat][st][0],messages[cat][st][1]]);
+ }
+}
+
+let csv = rows.map(e=>e.join(",")).join("\n");
+
+let blob = new Blob([csv]);
+let a = document.createElement("a");
+a.href = URL.createObjectURL(blob);
+a.download = "messages.csv";
+a.click();
 }
 
 </script>
