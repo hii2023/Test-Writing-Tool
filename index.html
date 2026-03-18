@@ -1,115 +1,104 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>NOSH7 Sales Script Tool</title>
-  <style>
-    body {
-      font-family: Arial;
-      background: #f5f7fa;
-      padding: 20px;
-      max-width: 800px;
-      margin: auto;
-    }
-    h1 { color: #2c7a7b; }
-    select, input, button, textarea {
-      width: 100%;
-      padding: 10px;
-      margin-top: 10px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-    }
-    textarea {
-      height: 200px;
-    }
-    button {
-      background: #2c7a7b;
-      color: white;
-      cursor: pointer;
-      font-weight: bold;
-    }
-    button:hover {
-      background: #285e61;
-    }
-  </style>
+<meta charset="UTF-8">
+<title>NOSH7 Sales Tool v2</title>
+
+<style>
+body { font-family: Arial; background:#f4f6f8; max-width:900px; margin:auto; padding:20px;}
+h1 { color:#2c7a7b; }
+input, select, textarea, button {
+  width:100%; padding:10px; margin-top:10px;
+  border-radius:6px; border:1px solid #ccc;
+}
+textarea { height:150px; }
+button { background:#2c7a7b; color:white; cursor:pointer; }
+button:hover { background:#285e61; }
+.card { background:white; padding:15px; margin-top:15px; border-radius:10px; }
+</style>
+
 </head>
 <body>
 
-<h1>🥗 NOSH7 Script Generator</h1>
+<h1>🥗 NOSH7 Sales Tool v2</h1>
 
-<label>Select Category:</label>
+<div class="card">
+
+<label>Category</label>
 <select id="category">
-  <option value="nutritionist">Nutritionist</option>
-  <option value="gym">Gym</option>
-  <option value="clinic">Clinic</option>
-  <option value="yoga">Yoga Class</option>
+<option value="nutritionist">Nutritionist</option>
+<option value="gym">Gym</option>
+<option value="clinic">Clinic</option>
+<option value="yoga">Yoga</option>
 </select>
 
-<label>Receiver Name (Optional):</label>
-<input type="text" id="name" placeholder="Enter Name">
+<label>Name</label>
+<input id="name" placeholder="Enter name">
 
-<label>Company (Optional):</label>
-<input type="text" id="company" placeholder="Enter Company">
+<label>Phone (with country code)</label>
+<input id="phone" placeholder="91XXXXXXXXXX">
 
-<label>Select Script Type:</label>
+<label>Company</label>
+<input id="company" placeholder="Optional">
+
+<label>Language</label>
+<select id="lang">
+<option value="eng">English</option>
+<option value="hinglish">Hinglish</option>
+</select>
+
+<label>Script Type</label>
 <select id="type">
-  <option value="whatsapp">WhatsApp</option>
-  <option value="followup">Follow Up</option>
-  <option value="call">Call Script</option>
+<option value="whatsapp">WhatsApp</option>
+<option value="followup">Follow-up</option>
+<option value="call">Call</option>
 </select>
 
-<button onclick="generateScript()">Generate Script</button>
+<button onclick="generate()">Generate Script</button>
 
-<textarea id="output" placeholder="Your script will appear here..."></textarea>
+<textarea id="output"></textarea>
 
-<button onclick="copyText()">📋 Copy Script</button>
+<button onclick="copyText()">📋 Copy</button>
+<button onclick="sendWhatsApp()">📲 Send WhatsApp</button>
+<button onclick="saveLead()">💾 Save Lead</button>
+
+</div>
+
+<div class="card">
+<h3>📊 Lead Tracker</h3>
+
+<input id="search" placeholder="Search name..." onkeyup="renderLeads()">
+
+<div id="leads"></div>
+
+<button onclick="exportCSV()">⬇ Export CSV</button>
+</div>
 
 <script>
-function generateScript() {
-  let category = document.getElementById("category").value;
-  let name = document.getElementById("name").value || "";
-  let company = document.getElementById("company").value || "";
-  let type = document.getElementById("type").value;
 
-  let intro = `Hi ${name ? name : ""} 👋\n\n`;
-  let companyText = company ? ` from ${company}` : "";
+function generate() {
+  let name = document.getElementById("name").value || "";
+  let category = document.getElementById("category").value;
+  let lang = document.getElementById("lang").value;
+
+  let intro = `Hi ${name} 👋\n\n`;
 
   let scripts = {
-
-    whatsapp: {
-      nutritionist: `${intro}I came across your work${companyText} — really liked your approach to nutrition.\n\nI run NOSH7 in Ahmedabad — we provide healthy meal subscriptions (salads, health drinks, seeds) to help clients follow diet consistently.\n\nWe help nutritionists improve results by handling meals + also offer commission.\n\nCan we connect for 10 mins?`,
-      
-      gym: `${intro}I came across your fitness setup${companyText} — looks great!\n\nWe run NOSH7 — healthy meal subscriptions for fitness & weight goals.\n\nWe can support your members with ready meals + you earn per referral.\n\nCan we connect briefly?`,
-      
-      clinic: `${intro}I came across your clinic${companyText}.\n\nWe run NOSH7 — helping patients follow diet through ready-to-eat healthy meals.\n\nThis improves results for diabetes, weight loss etc.\n\nWould love to explore a small collaboration.`,
-      
-      yoga: `${intro}I came across your yoga classes${companyText}.\n\nWe run NOSH7 — healthy meal subscriptions to support wellness goals.\n\nWe can help your members stay consistent + you earn via referrals.\n\nCan we connect?`
+    eng: {
+      nutritionist: intro + "We help your clients follow diet with ready healthy meals (NOSH7). You also earn per client. Can we connect?",
+      gym: intro + "We provide ready diet meals for gym members + you earn per referral. Quick call?",
+      clinic: intro + "We help patients follow diet via ready meals. Improves results. Can we connect?",
+      yoga: intro + "We support yoga members with healthy meals. Helps consistency + you earn per referral."
     },
-
-    followup: {
-      nutritionist: `${intro}Just following up 🙂\n\nMost nutritionists we work with faced one issue — clients not following diet.\n\nWe solved that with ready meals starting ₹179/day.\n\nHappy to try with 1–2 clients.`,
-      
-      gym: `${intro}Following up 🙂\n\nWe help gym members stay consistent with diet through ready meals.\n\nWould love to test with a few members.`,
-      
-      clinic: `${intro}Following up 🙂\n\nWe support patients with ready meals so diet compliance improves.\n\nCan start small with few patients.`,
-      
-      yoga: `${intro}Following up 🙂\n\nWe help yoga members maintain diet discipline with ready meals.\n\nHappy to test with small group.`
-    },
-
-    call: {
-      nutritionist: `Hi ${name}, this is from NOSH7.\n\nQuick question — do your clients follow diet properly?\n\nWe help solve that by providing ready-to-eat meals.\n\nAlso, you can earn per client.\n\nLet’s start with 2 clients?`,
-      
-      gym: `Hi ${name}, calling from NOSH7.\n\nWe help gym members with diet through ready meals.\n\nThis improves results + you earn per referral.\n\nCan we try with few members?`,
-      
-      clinic: `Hi ${name}, this is NOSH7.\n\nWe help patients follow diet through ready meals.\n\nBetter recovery + easy system.\n\nLet’s test with few patients.`,
-      
-      yoga: `Hi ${name}, NOSH7 here.\n\nWe support yoga members with diet meals.\n\nHelps improve consistency.\n\nCan we test with few members?`
+    hinglish: {
+      nutritionist: intro + "Hum ready healthy meals provide karte hai (NOSH7) jisse aapke clients diet follow kar paate hai. Aapko commission bhi milega. Connect kare?",
+      gym: intro + "Hum gym members ke liye ready diet meals dete hai + aapko earning milegi per referral.",
+      clinic: intro + "Hum patients ko ready meals dete hai jisse diet follow karna easy ho jata hai.",
+      yoga: intro + "Yoga members ke liye healthy meals + better consistency + aapko referral earning."
     }
-
   };
 
-  let result = scripts[type][category];
-  document.getElementById("output").value = result;
+  document.getElementById("output").value = scripts[lang][category];
 }
 
 function copyText() {
@@ -118,6 +107,76 @@ function copyText() {
   document.execCommand("copy");
   alert("Copied!");
 }
+
+function sendWhatsApp() {
+  let phone = document.getElementById("phone").value;
+  let msg = encodeURIComponent(document.getElementById("output").value);
+  window.open(`https://wa.me/${phone}?text=${msg}`, "_blank");
+}
+
+function saveLead() {
+  let leads = JSON.parse(localStorage.getItem("leads") || "[]");
+
+  leads.push({
+    name: document.getElementById("name").value,
+    phone: document.getElementById("phone").value,
+    category: document.getElementById("category").value,
+    status: "New"
+  });
+
+  localStorage.setItem("leads", JSON.stringify(leads));
+  renderLeads();
+}
+
+function renderLeads() {
+  let leads = JSON.parse(localStorage.getItem("leads") || "[]");
+  let search = document.getElementById("search").value.toLowerCase();
+
+  let html = "";
+
+  leads
+    .filter(l => l.name.toLowerCase().includes(search))
+    .forEach((l, i) => {
+      html += `
+      <div style="border-bottom:1px solid #ddd; padding:10px;">
+        <b>${l.name}</b> (${l.category})<br>
+        ${l.phone}<br>
+        Status: 
+        <select onchange="updateStatus(${i}, this.value)">
+          <option ${l.status=='New'?'selected':''}>New</option>
+          <option ${l.status=='Contacted'?'selected':''}>Contacted</option>
+          <option ${l.status=='Closed'?'selected':''}>Closed</option>
+        </select>
+      </div>`;
+    });
+
+  document.getElementById("leads").innerHTML = html;
+}
+
+function updateStatus(i, status) {
+  let leads = JSON.parse(localStorage.getItem("leads"));
+  leads[i].status = status;
+  localStorage.setItem("leads", JSON.stringify(leads));
+}
+
+function exportCSV() {
+  let leads = JSON.parse(localStorage.getItem("leads") || "[]");
+
+  let csv = "Name,Phone,Category,Status\n";
+
+  leads.forEach(l => {
+    csv += `${l.name},${l.phone},${l.category},${l.status}\n`;
+  });
+
+  let blob = new Blob([csv], { type: 'text/csv' });
+  let a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "leads.csv";
+  a.click();
+}
+
+renderLeads();
+
 </script>
 
 </body>
