@@ -1,30 +1,28 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
-<title>NOSH7 Sales Tool v2</title>
+<title>NOSH7 Sales Tool V3</title>
 
 <style>
-body { font-family: Arial; background:#f4f6f8; max-width:900px; margin:auto; padding:20px;}
-h1 { color:#2c7a7b; }
+body { font-family: Arial; max-width:900px; margin:auto; padding:20px; background:#f4f6f8;}
 input, select, textarea, button {
   width:100%; padding:10px; margin-top:10px;
   border-radius:6px; border:1px solid #ccc;
 }
-textarea { height:150px; }
+textarea { height:140px; }
 button { background:#2c7a7b; color:white; cursor:pointer; }
-button:hover { background:#285e61; }
 .card { background:white; padding:15px; margin-top:15px; border-radius:10px; }
+.stats { display:flex; justify-content:space-between; }
 </style>
 
 </head>
 <body>
 
-<h1>🥗 NOSH7 Sales Tool v2</h1>
+<h2>🥗 NOSH7 Sales Tool V3</h2>
 
 <div class="card">
 
-<label>Category</label>
 <select id="category">
 <option value="nutritionist">Nutritionist</option>
 <option value="gym">Gym</option>
@@ -32,49 +30,59 @@ button:hover { background:#285e61; }
 <option value="yoga">Yoga</option>
 </select>
 
-<label>Name</label>
-<input id="name" placeholder="Enter name">
+<input id="name" placeholder="Name">
+<input id="phone" placeholder="Phone (no +91)">
+<input id="company" placeholder="Company (optional)">
 
-<label>Phone (with country code)</label>
-<input id="phone" placeholder="91XXXXXXXXXX">
-
-<label>Company</label>
-<input id="company" placeholder="Optional">
-
-<label>Language</label>
 <select id="lang">
 <option value="eng">English</option>
 <option value="hinglish">Hinglish</option>
 </select>
 
-<label>Script Type</label>
 <select id="type">
 <option value="whatsapp">WhatsApp</option>
 <option value="followup">Follow-up</option>
 <option value="call">Call</option>
 </select>
 
-<button onclick="generate()">Generate Script</button>
+<button onclick="generate()">Generate</button>
 
 <textarea id="output"></textarea>
 
-<button onclick="copyText()">📋 Copy</button>
-<button onclick="sendWhatsApp()">📲 Send WhatsApp</button>
-<button onclick="saveLead()">💾 Save Lead</button>
+<button onclick="copyText()">Copy</button>
+<button onclick="sendWhatsApp()">Send WhatsApp</button>
+<button onclick="saveLead()">Save Lead</button>
 
 </div>
 
 <div class="card">
-<h3>📊 Lead Tracker</h3>
 
-<input id="search" placeholder="Search name..." onkeyup="renderLeads()">
+<h3>📊 Dashboard</h3>
+<div class="stats">
+<div>New: <span id="newCount">0</span></div>
+<div>Contacted: <span id="contactedCount">0</span></div>
+<div>Follow-up: <span id="followCount">0</span></div>
+<div>Closed: <span id="closedCount">0</span></div>
+</div>
 
+<input id="search" placeholder="Search..." onkeyup="renderLeads()">
 <div id="leads"></div>
 
-<button onclick="exportCSV()">⬇ Export CSV</button>
+<button onclick="exportCSV()">Export CSV</button>
+
 </div>
 
 <script>
+
+function cleanPhone(num) {
+  return num.replace(/\D/g, ""); // remove symbols
+}
+
+function getFullPhone() {
+  let raw = cleanPhone(document.getElementById("phone").value);
+  if (raw.startsWith("91")) return raw;
+  return "91" + raw;
+}
 
 function generate() {
   let name = document.getElementById("name").value || "";
@@ -85,33 +93,32 @@ function generate() {
 
   let scripts = {
     eng: {
-      nutritionist: intro + "We help your clients follow diet with ready healthy meals (NOSH7). You also earn per client. Can we connect?",
-      gym: intro + "We provide ready diet meals for gym members + you earn per referral. Quick call?",
-      clinic: intro + "We help patients follow diet via ready meals. Improves results. Can we connect?",
-      yoga: intro + "We support yoga members with healthy meals. Helps consistency + you earn per referral."
+      nutritionist: intro + "We help your clients follow diet with ready healthy meals (NOSH7). You earn per client. Quick connect?",
+      gym: intro + "We provide ready meals for gym members + you earn per referral. Quick call?",
+      clinic: intro + "We help patients follow diet with ready meals. Better results. Can we connect?",
+      yoga: intro + "We support members with healthy meals + consistency + referral earning."
     },
     hinglish: {
-      nutritionist: intro + "Hum ready healthy meals provide karte hai (NOSH7) jisse aapke clients diet follow kar paate hai. Aapko commission bhi milega. Connect kare?",
-      gym: intro + "Hum gym members ke liye ready diet meals dete hai + aapko earning milegi per referral.",
-      clinic: intro + "Hum patients ko ready meals dete hai jisse diet follow karna easy ho jata hai.",
-      yoga: intro + "Yoga members ke liye healthy meals + better consistency + aapko referral earning."
+      nutritionist: intro + "Hum ready meals dete hai jisse clients diet follow kare + aapko earning milegi. Connect kare?",
+      gym: intro + "Gym members ke liye ready meals + aapko referral earning milegi.",
+      clinic: intro + "Patients ke liye ready meals jisse diet follow easy ho jata hai.",
+      yoga: intro + "Members ke liye healthy meals + better consistency + earning."
     }
   };
 
   document.getElementById("output").value = scripts[lang][category];
 }
 
+function sendWhatsApp() {
+  let phone = getFullPhone();
+  let msg = encodeURIComponent(document.getElementById("output").value);
+  window.open(`https://wa.me/${phone}?text=${msg}`, "_blank");
+}
+
 function copyText() {
   let text = document.getElementById("output");
   text.select();
   document.execCommand("copy");
-  alert("Copied!");
-}
-
-function sendWhatsApp() {
-  let phone = document.getElementById("phone").value;
-  let msg = encodeURIComponent(document.getElementById("output").value);
-  window.open(`https://wa.me/${phone}?text=${msg}`, "_blank");
 }
 
 function saveLead() {
@@ -119,56 +126,65 @@ function saveLead() {
 
   leads.push({
     name: document.getElementById("name").value,
-    phone: document.getElementById("phone").value,
+    phone: cleanPhone(document.getElementById("phone").value),
     category: document.getElementById("category").value,
-    status: "New"
+    status: "New",
+    date: new Date().toLocaleDateString()
   });
 
   localStorage.setItem("leads", JSON.stringify(leads));
   renderLeads();
 }
 
-function renderLeads() {
-  let leads = JSON.parse(localStorage.getItem("leads") || "[]");
-  let search = document.getElementById("search").value.toLowerCase();
-
-  let html = "";
-
-  leads
-    .filter(l => l.name.toLowerCase().includes(search))
-    .forEach((l, i) => {
-      html += `
-      <div style="border-bottom:1px solid #ddd; padding:10px;">
-        <b>${l.name}</b> (${l.category})<br>
-        ${l.phone}<br>
-        Status: 
-        <select onchange="updateStatus(${i}, this.value)">
-          <option ${l.status=='New'?'selected':''}>New</option>
-          <option ${l.status=='Contacted'?'selected':''}>Contacted</option>
-          <option ${l.status=='Closed'?'selected':''}>Closed</option>
-        </select>
-      </div>`;
-    });
-
-  document.getElementById("leads").innerHTML = html;
-}
-
 function updateStatus(i, status) {
   let leads = JSON.parse(localStorage.getItem("leads"));
   leads[i].status = status;
   localStorage.setItem("leads", JSON.stringify(leads));
+  renderLeads();
+}
+
+function renderLeads() {
+  let leads = JSON.parse(localStorage.getItem("leads") || []);
+  let search = document.getElementById("search").value.toLowerCase();
+
+  let counts = {New:0, Contacted:0, "Follow-up":0, Closed:0};
+
+  let html = "";
+
+  leads.filter(l => l.name.toLowerCase().includes(search)).forEach((l,i)=>{
+    counts[l.status]++;
+
+    html += `
+    <div style="border-bottom:1px solid #ddd; padding:10px;">
+      <b>${l.name}</b> (${l.category})<br>
+      ${l.phone}<br>
+      ${l.date}<br>
+      <select onchange="updateStatus(${i}, this.value)">
+        <option ${l.status=="New"?"selected":""}>New</option>
+        <option ${l.status=="Contacted"?"selected":""}>Contacted</option>
+        <option ${l.status=="Follow-up"?"selected":""}>Follow-up</option>
+        <option ${l.status=="Closed"?"selected":""}>Closed</option>
+      </select>
+    </div>`;
+  });
+
+  document.getElementById("leads").innerHTML = html;
+
+  document.getElementById("newCount").innerText = counts.New;
+  document.getElementById("contactedCount").innerText = counts.Contacted;
+  document.getElementById("followCount").innerText = counts["Follow-up"];
+  document.getElementById("closedCount").innerText = counts.Closed;
 }
 
 function exportCSV() {
-  let leads = JSON.parse(localStorage.getItem("leads") || "[]");
+  let leads = JSON.parse(localStorage.getItem("leads") || []);
+  let csv = "Name,Phone,Category,Status,Date\n";
 
-  let csv = "Name,Phone,Category,Status\n";
-
-  leads.forEach(l => {
-    csv += `${l.name},${l.phone},${l.category},${l.status}\n`;
+  leads.forEach(l=>{
+    csv += `${l.name},${l.phone},${l.category},${l.status},${l.date}\n`;
   });
 
-  let blob = new Blob([csv], { type: 'text/csv' });
+  let blob = new Blob([csv]);
   let a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
   a.download = "leads.csv";
