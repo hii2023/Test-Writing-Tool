@@ -2,58 +2,75 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>NOSH7 Sales Engine V9</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NOSH7 Sales Engine Mobile</title>
 
 <style>
 body {
   font-family: Arial;
   margin:0;
-  padding:10px;
-  background:#f4f6f8;
+  padding:12px;
+  background:#f5f7fa;
 }
+
+h2 {
+  font-size:22px;
+  margin-bottom:10px;
+}
+
 .card {
   background:white;
-  padding:12px;
-  margin-top:10px;
-  border-radius:10px;
-  box-shadow:0 2px 6px rgba(0,0,0,0.1);
+  padding:16px;
+  margin-top:12px;
+  border-radius:14px;
+  box-shadow:0 3px 8px rgba(0,0,0,0.08);
 }
-input, select, button {
+
+input, select {
   width:100%;
-  padding:12px;
-  margin-top:8px;
-  font-size:16px;
-}
-.output {
-  background:#eef7ee;
-  padding:10px;
+  padding:14px;
   margin-top:10px;
-  border-radius:6px;
-  white-space:pre-line;
-  font-size:14px;
+  font-size:18px;
+  border-radius:10px;
+  border:1px solid #ccc;
 }
+
 button {
+  width:100%;
+  padding:16px;
+  margin-top:12px;
+  font-size:18px;
+  border:none;
+  border-radius:12px;
   background:#2e7d32;
   color:white;
-  border:none;
+  font-weight:bold;
 }
+
 .copyBtn {
   background:#1565c0;
-  margin-top:5px;
 }
-h3 {
-  margin-bottom:5px;
+
+.output {
+  background:#eef7ee;
+  padding:14px;
+  margin-top:12px;
+  border-radius:10px;
+  font-size:16px;
+  line-height:1.5;
+  white-space:pre-line;
 }
 </style>
+
 </head>
 
 <body>
 
-<h3>NOSH7 Sales Engine</h3>
+<h2>NOSH7 Sales Engine</h2>
 
 <div class="card">
 
-<input id="name" placeholder="Lead Name">
+<input id="name" placeholder="Enter Lead Name">
 
 <select id="category">
 <option>Gym</option>
@@ -79,221 +96,87 @@ h3 {
 <option>Call</option>
 </select>
 
-<button onclick="generate()">Generate</button>
+<button onclick="generate()">Generate Message</button>
 
 </div>
 
 <div class="card">
 <h3>Subject</h3>
 <div id="subject" class="output"></div>
-<button class="copyBtn" onclick="copy('subject')">Copy</button>
+<button class="copyBtn" onclick="copyText('subject')">Copy</button>
 </div>
 
 <div class="card">
 <h3>Message 1</h3>
 <div id="msg1" class="output"></div>
-<button class="copyBtn" onclick="copy('msg1')">Copy</button>
+<button class="copyBtn" onclick="copyText('msg1')">Copy Message 1</button>
 </div>
 
 <div class="card">
 <h3>Message 2</h3>
 <div id="msg2" class="output"></div>
-<button class="copyBtn" onclick="copy('msg2')">Copy</button>
+<button class="copyBtn" onclick="copyText('msg2')">Copy Message 2</button>
 </div>
 
 <div class="card">
-<h3>Trigger Insight</h3>
+<h3>What triggers this lead</h3>
 <div id="insight" class="output"></div>
 </div>
 
 <div class="card">
-<h3>Lead Stage Guide</h3>
+<h3>How to handle this stage</h3>
 <div id="guide" class="output"></div>
 </div>
 
 <script>
 
 const triggers = {
-Gym:"Members want visible results and retention",
-Yoga:"Members seek discipline and lifestyle alignment",
-Dietitian:"Focus is on compliance and outcomes",
-Trainer:"Faster transformation = higher value",
-Lab:"Reports need actionable follow-up",
-WeightLoss:"Retention depends on visible results",
-Corporate:"Wellness must be easy and scalable"
+Gym:"They care about visible results and member retention.",
+Yoga:"They care about discipline and lifestyle alignment.",
+Dietitian:"They care about client compliance and outcomes.",
+Trainer:"They care about faster transformations.",
+Lab:"They care about extending reports into action.",
+WeightLoss:"They care about retention and visible progress.",
+Corporate:"They care about easy wellness execution."
 };
 
-const stageGuide = {
-New:"Lead does not know you. Keep message short and relevant.",
-Interested:"Lead sees value. Push for trial or pilot.",
-Confused:"Lead fears complexity. Simplify.",
-NoResponse:"Lead is ignoring. Use trigger or exit message.",
-Ready:"Lead is convinced. Close immediately."
+const guide = {
+New:"Keep message short. Focus on problem.",
+Interested:"Push for small pilot.",
+Confused:"Simplify. Remove effort.",
+NoResponse:"Use exit or trigger message.",
+Ready:"Close immediately."
 };
 
 const db = {
-
 Gym:{
-New:[
-"Most members train but don’t see results due to diet gaps. We help gyms fix this through daily meals.",
-"Retention drops when results are not visible. We support diet execution so members stay consistent."
-],
-Interested:[
-"Let’s try this with 2–3 members not seeing results.",
-"Start with members close to dropping. You will see impact quickly."
-],
-Confused:[
-"No change in your setup. We only handle meals.",
-"This works as support, not an extra process."
-],
-NoResponse:[
-"Checking if improving member results is relevant now.",
-"Closing for now. Can reconnect later."
-],
-Ready:[
-"Share member details and we will begin.",
-"We can start immediately."
-]
+New:["Members train but results don’t show due to diet gaps. We solve that by handling meals.",
+"Retention drops when results are not visible. We support diet execution."]
 },
-
 Yoga:{
-New:[
-"Many members follow yoga but not diet. We help align both.",
-"We extend yoga practice into daily lifestyle through meals."
-],
-Interested:[
-"Start with a few members for better discipline.",
-"We can support members struggling with consistency."
-],
-Confused:[
-"No change in your sessions. We support outside class.",
-"This complements your practice."
-],
-NoResponse:[
-"Checking relevance for your members.",
-"Closing for now."
-],
-Ready:[
-"Let’s begin with few members.",
-"We can activate today."
-]
+New:["Members follow yoga but not diet. We help align both.",
+"We extend yoga into daily lifestyle through meals."]
 },
-
 Dietitian:{
-New:[
-"Clients don’t follow diet plans consistently. We solve execution.",
-"We convert diet plans into daily meals."
-],
-Interested:[
-"Start with 2 clients struggling with adherence.",
-"We align meals with your plans."
-],
-Confused:[
-"We support your plan, not replace it.",
-"No process change required."
-],
-NoResponse:[
-"Checking relevance for your clients.",
-"Closing for now."
-],
-Ready:[
-"Share client details to begin.",
-"We can activate immediately."
-]
+New:["Clients don’t follow diet plans consistently. We solve execution.",
+"We convert plans into daily meals."]
 },
-
 Trainer:{
-New:[
-"Clients depend on you but diet is uncontrolled. We fix that.",
-"Faster transformations need controlled diet."
-],
-Interested:[
-"Start with 1–2 clients for faster results.",
-"We can support transformation cases."
-],
-Confused:[
-"We only handle meals.",
-"No extra work for you."
-],
-NoResponse:[
-"Checking if relevant.",
-"Closing for now."
-],
-Ready:[
-"Let’s onboard first client.",
-"We can start today."
-]
+New:["Clients depend on you but diet is uncontrolled. We fix that.",
+"Faster results need controlled diet."]
 },
-
 Lab:{
-New:[
-"Patients get reports but don’t act. We enable action.",
-"We convert reports into daily nutrition."
-],
-Interested:[
-"Start with lifestyle patients.",
-"Use as post-report solution."
-],
-Confused:[
-"We extend your service.",
-"No change required."
-],
-NoResponse:[
-"Checking relevance.",
-"Closing for now."
-],
-Ready:[
-"Let’s activate for selected patients.",
-"We can start immediately."
-]
+New:["Patients don’t act on reports. We enable action.",
+"We convert reports into daily nutrition."]
 },
-
 WeightLoss:{
-New:[
-"Clients drop without results. We improve consistency.",
-"Retention improves with structured meals."
-],
-Interested:[
-"Start with few clients.",
-"Improve adherence quickly."
-],
-Confused:[
-"We support your program.",
-"No changes needed."
-],
-NoResponse:[
-"Checking relevance.",
-"Closing for now."
-],
-Ready:[
-"Let’s begin with initial clients.",
-"We can activate today."
-]
+New:["Clients drop without results. We improve consistency.",
+"Retention improves with structured meals."]
 },
-
 Corporate:{
-New:[
-"Wellness programs fail in execution. We solve that.",
-"We provide ready nutrition for employees."
-],
-Interested:[
-"Start with small team pilot.",
-"Run short wellness program."
-],
-Confused:[
-"No admin effort needed.",
-"We handle execution."
-],
-NoResponse:[
-"Checking relevance.",
-"Closing for now."
-],
-Ready:[
-"Let’s start pilot.",
-"We can begin immediately."
-]
+New:["Wellness programs fail in execution. We solve that.",
+"We provide ready nutrition for employees."]
 }
-
 };
 
 function generate(){
@@ -303,20 +186,20 @@ let cat = document.getElementById("category").value;
 let stage = document.getElementById("stage").value;
 let mode = document.getElementById("mode").value;
 
-let msgs = db[cat][stage];
+let msgs = db[cat][stage] || ["We support better outcomes through nutrition.","We improve consistency through structured meals."];
 
 let m1 = "Hi "+name+"\n\n"+msgs[0];
 let m2 = "Hi "+name+"\n\n"+msgs[1];
 
 if(mode==="Email"){
-document.getElementById("subject").innerText="Improving outcomes through nutrition execution";
-m1 = "Dear "+name+",\n\n"+msgs[0]+"\n\nRegards\nNOSH7";
-m2 = "Dear "+name+",\n\n"+msgs[1]+"\n\nRegards\nNOSH7";
+document.getElementById("subject").innerText="Improving outcomes through nutrition";
+m1="Dear "+name+",\n\n"+msgs[0]+"\n\nRegards\nNOSH7";
+m2="Dear "+name+",\n\n"+msgs[1]+"\n\nRegards\nNOSH7";
 }
 else if(mode==="Call"){
 document.getElementById("subject").innerText="Call Script";
-m1 = "Opening:\nHi "+name+", calling from NOSH7.\n\n"+msgs[0]+"\n\nClose:\nLet’s try with few clients.";
-m2 = "Opening:\nHi "+name+", quick call from NOSH7.\n\n"+msgs[1]+"\n\nClose:\nCan we test this?";
+m1="Hi "+name+", calling from NOSH7.\n\n"+msgs[0]+"\n\nLet’s test with few clients.";
+m2="Hi "+name+", quick call from NOSH7.\n\n"+msgs[1]+"\n\nCan we try with few?";
 }
 else{
 document.getElementById("subject").innerText="Not applicable";
@@ -325,11 +208,11 @@ document.getElementById("subject").innerText="Not applicable";
 document.getElementById("msg1").innerText=m1;
 document.getElementById("msg2").innerText=m2;
 document.getElementById("insight").innerText=triggers[cat];
-document.getElementById("guide").innerText=stageGuide[stage];
+document.getElementById("guide").innerText=guide[stage];
 
 }
 
-function copy(id){
+function copyText(id){
 navigator.clipboard.writeText(document.getElementById(id).innerText);
 }
 
