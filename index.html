@@ -2,196 +2,201 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>NOSH7 Sales Tool V3</title>
+<title>NOSH7 Lead Maturity Engine</title>
 
 <style>
-body { font-family: Arial; max-width:900px; margin:auto; padding:20px; background:#f4f6f8;}
-input, select, textarea, button {
-  width:100%; padding:10px; margin-top:10px;
-  border-radius:6px; border:1px solid #ccc;
+body {
+  font-family: Arial;
+  background: linear-gradient(135deg,#e0f7fa,#fce4ec);
+  padding:20px;
+  max-width:900px;
+  margin:auto;
 }
-textarea { height:140px; }
-button { background:#2c7a7b; color:white; cursor:pointer; }
-.card { background:white; padding:15px; margin-top:15px; border-radius:10px; }
-.stats { display:flex; justify-content:space-between; }
-</style>
+h1 { color:#2c7a7b; }
 
+.card {
+  background:white;
+  padding:15px;
+  border-radius:12px;
+  margin-top:15px;
+  box-shadow:0 4px 10px rgba(0,0,0,0.1);
+}
+
+select,input,textarea,button {
+  width:100%;
+  padding:10px;
+  margin-top:10px;
+  border-radius:6px;
+  border:1px solid #ccc;
+}
+
+button {
+  background:#2c7a7b;
+  color:white;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.output {
+  background:#f1f8e9;
+  padding:10px;
+  border-radius:8px;
+  margin-top:10px;
+  white-space:pre-line;
+}
+</style>
 </head>
+
 <body>
 
-<h2>🥗 NOSH7 Sales Tool V3</h2>
+<h1>🔥 NOSH7 Lead Maturity Engine</h1>
 
 <div class="card">
 
-<select id="category">
-<option value="nutritionist">Nutritionist</option>
-<option value="gym">Gym</option>
-<option value="clinic">Clinic</option>
-<option value="yoga">Yoga</option>
+<label>Lead Name</label>
+<input id="name" placeholder="Enter name">
+
+<label>Lead Stage</label>
+<select id="stage">
+<option value="new">New Lead</option>
+<option value="contacted">Contacted</option>
+<option value="interested">Interested</option>
+<option value="confused">Confused</option>
+<option value="notresponding">Not Responding</option>
+<option value="ready">Ready to Close</option>
 </select>
 
-<input id="name" placeholder="Name">
-<input id="phone" placeholder="Phone (no +91)">
-<input id="company" placeholder="Company (optional)">
-
-<select id="lang">
-<option value="eng">English</option>
-<option value="hinglish">Hinglish</option>
-</select>
-
-<select id="type">
-<option value="whatsapp">WhatsApp</option>
-<option value="followup">Follow-up</option>
-<option value="call">Call</option>
-</select>
-
-<button onclick="generate()">Generate</button>
-
-<textarea id="output"></textarea>
-
-<button onclick="copyText()">Copy</button>
-<button onclick="sendWhatsApp()">Send WhatsApp</button>
-<button onclick="saveLead()">Save Lead</button>
+<button onclick="generate()">Generate Strategy</button>
 
 </div>
 
 <div class="card">
-
-<h3>📊 Dashboard</h3>
-<div class="stats">
-<div>New: <span id="newCount">0</span></div>
-<div>Contacted: <span id="contactedCount">0</span></div>
-<div>Follow-up: <span id="followCount">0</span></div>
-<div>Closed: <span id="closedCount">0</span></div>
+<h3>💬 What to Say</h3>
+<div id="script" class="output"></div>
 </div>
 
-<input id="search" placeholder="Search..." onkeyup="renderLeads()">
-<div id="leads"></div>
+<div class="card">
+<h3>🧠 What’s Happening</h3>
+<div id="insight" class="output"></div>
+</div>
 
-<button onclick="exportCSV()">Export CSV</button>
+<div class="card">
+<h3>📊 What You Should Do Next</h3>
+<div id="action" class="output"></div>
+</div>
 
+<div class="card">
+<h3>⚡ Pro Tip</h3>
+<div id="tip" class="output"></div>
 </div>
 
 <script>
 
-function cleanPhone(num) {
-  return num.replace(/\D/g, ""); // remove symbols
+function generate(){
+
+let name = document.getElementById("name").value || "";
+let stage = document.getElementById("stage").value;
+
+let data = {
+
+new: {
+script: `Hi ${name} 👋
+
+We help clients follow diet with ready healthy meals (NOSH7).
+
+You can also earn per referral.
+
+Quick connect?`,
+
+insight: "Lead doesn't know you. Keep it short. No overload.",
+
+action: "Send message → Wait 24 hrs → Follow-up if no reply.",
+
+tip: "First message = curiosity, not full pitch."
+},
+
+contacted: {
+script: `Hi ${name}, just checking 🙂
+
+Most partners we work with faced one issue — clients not following diet.
+
+We solved that with ready meals.
+
+Can we try with 1–2 clients?`,
+
+insight: "Lead has seen you but not convinced.",
+
+action: "Push for small trial, not full commitment.",
+
+tip: "Reduce risk → Increase conversion."
+},
+
+interested: {
+script: `Great ${name} 🙌
+
+Let’s start with 2 clients.
+
+We’ll handle everything — meals + delivery.
+
+You just guide them.`,
+
+insight: "Lead wants this but needs push.",
+
+action: "Close fast. Don’t delay.",
+
+tip: "Momentum = conversion."
+},
+
+confused: {
+script: `Totally understand ${name} 🙂
+
+Let’s keep it simple.
+
+We can start with just 1 client — no pressure.
+
+You’ll see results first.`,
+
+insight: "Fear of risk or complexity.",
+
+action: "Simplify + reduce decision load.",
+
+tip: "Confusion kills sales. Simplicity converts."
+},
+
+notresponding: {
+script: `Hi ${name}, just closing loop 🙂
+
+Should I keep this on hold for now?`,
+
+insight: "Lead is ignoring. Needs trigger.",
+
+action: "Use reverse psychology.",
+
+tip: "Scarcity + exit message = response trigger."
+},
+
+ready: {
+script: `Perfect ${name} 🙌
+
+Let’s start today.
+
+Share 1–2 client details and we’ll begin immediately.`,
+
+insight: "Lead is ready but waiting.",
+
+action: "Push immediate action.",
+
+tip: "Delay = drop. Close NOW."
 }
 
-function getFullPhone() {
-  let raw = cleanPhone(document.getElementById("phone").value);
-  if (raw.startsWith("91")) return raw;
-  return "91" + raw;
+};
+
+document.getElementById("script").innerText = data[stage].script;
+document.getElementById("insight").innerText = data[stage].insight;
+document.getElementById("action").innerText = data[stage].action;
+document.getElementById("tip").innerText = data[stage].tip;
+
 }
-
-function generate() {
-  let name = document.getElementById("name").value || "";
-  let category = document.getElementById("category").value;
-  let lang = document.getElementById("lang").value;
-
-  let intro = `Hi ${name} 👋\n\n`;
-
-  let scripts = {
-    eng: {
-      nutritionist: intro + "We help your clients follow diet with ready healthy meals (NOSH7). You earn per client. Quick connect?",
-      gym: intro + "We provide ready meals for gym members + you earn per referral. Quick call?",
-      clinic: intro + "We help patients follow diet with ready meals. Better results. Can we connect?",
-      yoga: intro + "We support members with healthy meals + consistency + referral earning."
-    },
-    hinglish: {
-      nutritionist: intro + "Hum ready meals dete hai jisse clients diet follow kare + aapko earning milegi. Connect kare?",
-      gym: intro + "Gym members ke liye ready meals + aapko referral earning milegi.",
-      clinic: intro + "Patients ke liye ready meals jisse diet follow easy ho jata hai.",
-      yoga: intro + "Members ke liye healthy meals + better consistency + earning."
-    }
-  };
-
-  document.getElementById("output").value = scripts[lang][category];
-}
-
-function sendWhatsApp() {
-  let phone = getFullPhone();
-  let msg = encodeURIComponent(document.getElementById("output").value);
-  window.open(`https://wa.me/${phone}?text=${msg}`, "_blank");
-}
-
-function copyText() {
-  let text = document.getElementById("output");
-  text.select();
-  document.execCommand("copy");
-}
-
-function saveLead() {
-  let leads = JSON.parse(localStorage.getItem("leads") || "[]");
-
-  leads.push({
-    name: document.getElementById("name").value,
-    phone: cleanPhone(document.getElementById("phone").value),
-    category: document.getElementById("category").value,
-    status: "New",
-    date: new Date().toLocaleDateString()
-  });
-
-  localStorage.setItem("leads", JSON.stringify(leads));
-  renderLeads();
-}
-
-function updateStatus(i, status) {
-  let leads = JSON.parse(localStorage.getItem("leads"));
-  leads[i].status = status;
-  localStorage.setItem("leads", JSON.stringify(leads));
-  renderLeads();
-}
-
-function renderLeads() {
-  let leads = JSON.parse(localStorage.getItem("leads") || []);
-  let search = document.getElementById("search").value.toLowerCase();
-
-  let counts = {New:0, Contacted:0, "Follow-up":0, Closed:0};
-
-  let html = "";
-
-  leads.filter(l => l.name.toLowerCase().includes(search)).forEach((l,i)=>{
-    counts[l.status]++;
-
-    html += `
-    <div style="border-bottom:1px solid #ddd; padding:10px;">
-      <b>${l.name}</b> (${l.category})<br>
-      ${l.phone}<br>
-      ${l.date}<br>
-      <select onchange="updateStatus(${i}, this.value)">
-        <option ${l.status=="New"?"selected":""}>New</option>
-        <option ${l.status=="Contacted"?"selected":""}>Contacted</option>
-        <option ${l.status=="Follow-up"?"selected":""}>Follow-up</option>
-        <option ${l.status=="Closed"?"selected":""}>Closed</option>
-      </select>
-    </div>`;
-  });
-
-  document.getElementById("leads").innerHTML = html;
-
-  document.getElementById("newCount").innerText = counts.New;
-  document.getElementById("contactedCount").innerText = counts.Contacted;
-  document.getElementById("followCount").innerText = counts["Follow-up"];
-  document.getElementById("closedCount").innerText = counts.Closed;
-}
-
-function exportCSV() {
-  let leads = JSON.parse(localStorage.getItem("leads") || []);
-  let csv = "Name,Phone,Category,Status,Date\n";
-
-  leads.forEach(l=>{
-    csv += `${l.name},${l.phone},${l.category},${l.status},${l.date}\n`;
-  });
-
-  let blob = new Blob([csv]);
-  let a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = "leads.csv";
-  a.click();
-}
-
-renderLeads();
 
 </script>
 
