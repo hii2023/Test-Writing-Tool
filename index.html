@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>NOSH7 Sales Script Tool</title>
+  <style>
+    body {
+      font-family: Arial;
+      background: #f5f7fa;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { color: #2c7a7b; }
+    select, input, button, textarea {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+    textarea {
+      height: 200px;
+    }
+    button {
+      background: #2c7a7b;
+      color: white;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    button:hover {
+      background: #285e61;
+    }
+  </style>
+</head>
+<body>
+
+<h1>🥗 NOSH7 Script Generator</h1>
+
+<label>Select Category:</label>
+<select id="category">
+  <option value="nutritionist">Nutritionist</option>
+  <option value="gym">Gym</option>
+  <option value="clinic">Clinic</option>
+  <option value="yoga">Yoga Class</option>
+</select>
+
+<label>Receiver Name (Optional):</label>
+<input type="text" id="name" placeholder="Enter Name">
+
+<label>Company (Optional):</label>
+<input type="text" id="company" placeholder="Enter Company">
+
+<label>Select Script Type:</label>
+<select id="type">
+  <option value="whatsapp">WhatsApp</option>
+  <option value="followup">Follow Up</option>
+  <option value="call">Call Script</option>
+</select>
+
+<button onclick="generateScript()">Generate Script</button>
+
+<textarea id="output" placeholder="Your script will appear here..."></textarea>
+
+<button onclick="copyText()">📋 Copy Script</button>
+
+<script>
+function generateScript() {
+  let category = document.getElementById("category").value;
+  let name = document.getElementById("name").value || "";
+  let company = document.getElementById("company").value || "";
+  let type = document.getElementById("type").value;
+
+  let intro = `Hi ${name ? name : ""} 👋\n\n`;
+  let companyText = company ? ` from ${company}` : "";
+
+  let scripts = {
+
+    whatsapp: {
+      nutritionist: `${intro}I came across your work${companyText} — really liked your approach to nutrition.\n\nI run NOSH7 in Ahmedabad — we provide healthy meal subscriptions (salads, health drinks, seeds) to help clients follow diet consistently.\n\nWe help nutritionists improve results by handling meals + also offer commission.\n\nCan we connect for 10 mins?`,
+      
+      gym: `${intro}I came across your fitness setup${companyText} — looks great!\n\nWe run NOSH7 — healthy meal subscriptions for fitness & weight goals.\n\nWe can support your members with ready meals + you earn per referral.\n\nCan we connect briefly?`,
+      
+      clinic: `${intro}I came across your clinic${companyText}.\n\nWe run NOSH7 — helping patients follow diet through ready-to-eat healthy meals.\n\nThis improves results for diabetes, weight loss etc.\n\nWould love to explore a small collaboration.`,
+      
+      yoga: `${intro}I came across your yoga classes${companyText}.\n\nWe run NOSH7 — healthy meal subscriptions to support wellness goals.\n\nWe can help your members stay consistent + you earn via referrals.\n\nCan we connect?`
+    },
+
+    followup: {
+      nutritionist: `${intro}Just following up 🙂\n\nMost nutritionists we work with faced one issue — clients not following diet.\n\nWe solved that with ready meals starting ₹179/day.\n\nHappy to try with 1–2 clients.`,
+      
+      gym: `${intro}Following up 🙂\n\nWe help gym members stay consistent with diet through ready meals.\n\nWould love to test with a few members.`,
+      
+      clinic: `${intro}Following up 🙂\n\nWe support patients with ready meals so diet compliance improves.\n\nCan start small with few patients.`,
+      
+      yoga: `${intro}Following up 🙂\n\nWe help yoga members maintain diet discipline with ready meals.\n\nHappy to test with small group.`
+    },
+
+    call: {
+      nutritionist: `Hi ${name}, this is from NOSH7.\n\nQuick question — do your clients follow diet properly?\n\nWe help solve that by providing ready-to-eat meals.\n\nAlso, you can earn per client.\n\nLet’s start with 2 clients?`,
+      
+      gym: `Hi ${name}, calling from NOSH7.\n\nWe help gym members with diet through ready meals.\n\nThis improves results + you earn per referral.\n\nCan we try with few members?`,
+      
+      clinic: `Hi ${name}, this is NOSH7.\n\nWe help patients follow diet through ready meals.\n\nBetter recovery + easy system.\n\nLet’s test with few patients.`,
+      
+      yoga: `Hi ${name}, NOSH7 here.\n\nWe support yoga members with diet meals.\n\nHelps improve consistency.\n\nCan we test with few members?`
+    }
+
+  };
+
+  let result = scripts[type][category];
+  document.getElementById("output").value = result;
+}
+
+function copyText() {
+  let text = document.getElementById("output");
+  text.select();
+  document.execCommand("copy");
+  alert("Copied!");
+}
+</script>
+
+</body>
+</html>
